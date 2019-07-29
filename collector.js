@@ -63,9 +63,9 @@ async function collect({ paths, dist, collector }) {
   const outputLangs = {};
 
   for (const lang in maps) {
-    outputLangs[lang] = maps[lang].map((fileMap) => {
-      return collector(fileMap[0], lang, fileMap[1]);
-    });
+    outputLangs[lang] = {};
+
+    maps[lang].forEach((fileMap) => collector(fileMap[0], fileMap[1], outputLangs[lang]));
   }
 
   for (const lang in outputLangs) {
