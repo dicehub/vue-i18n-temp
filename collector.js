@@ -41,16 +41,13 @@ function getFilesMapContent(paths) {
         }
 
         if (data) {
-          langs[lang].push([
-            dirPath,
-            data
-          ]);
+          langs[lang].push([dirPath, data]);
         }
       });
 
       res(langs);
-    })
-  })
+    });
+  });
 }
 
 function outputData(dist, lang, data) {
@@ -59,7 +56,8 @@ function outputData(dist, lang, data) {
 }
 
 async function collect({ paths, dist, collector }) {
-  const maps = await getFilesMapContent(`{${paths.join(',')}}`);
+  const p = Array.isArray(paths) ? `{${paths.join(',')}}` : paths;
+  const maps = await getFilesMapContent(p);
   const outputLangs = {};
 
   for (const lang in maps) {
@@ -86,6 +84,6 @@ module.exports = ({ watch, paths, dist, collector }) => {
       console.log('Langs updated.');
       await collect({ paths, dist, collector });
       done();
-    })
+    });
   }
-}
+};
