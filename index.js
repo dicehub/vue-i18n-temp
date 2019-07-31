@@ -77,7 +77,6 @@ export const i18n = {
   },
 
   addLocale(locale) {
-    console.log(this.getFetchUrl(locale));
     return fetch(this.getFetchUrl(locale))
       .then((r) => r.json())
       .then((data) => {
