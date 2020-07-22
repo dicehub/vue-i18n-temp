@@ -6,7 +6,7 @@ function deepFind(n, o) {
   let t = n;
 
   for (l = 0; l < r.length; ++l) {
-    if (t == null || t[r[l]] == null) return;
+    if (t == null || t[r[l]] == null) return null;
 
     t = t[r[l]];
   }
@@ -39,7 +39,7 @@ export const i18n = {
       return '';
     }
 
-    return this._interpolate(translation, vars);
+    return this.interpolate(translation, vars);
   },
 
   ti(slug, number, vars) {
@@ -55,8 +55,6 @@ export const i18n = {
     }
 
     return variants[2];
-
-    // return translation;
   },
 
   async setLocale(locale) {
@@ -72,8 +70,6 @@ export const i18n = {
 
     document.querySelector('html').setAttribute('lang', locale);
     this.locale = locale;
-
-    // localStorage.setItem('language', profile.info.language);
   },
 
   addLocale(locale) {
@@ -84,7 +80,7 @@ export const i18n = {
       });
   },
 
-  _interpolate(message, vars) {
+  interpolate(message, vars) {
     const regex = /{([^}]+)}/gm;
 
     return message.replace(regex, (_, slug) => deepFind(vars, slug) || _);
@@ -102,7 +98,9 @@ export default {
     }
 
     VueInstance.prototype.$i18n = new Vue({
-      data: () => ({ instance: i18n }),
+      data: () => ({
+        instance: i18n,
+      }),
     });
 
     VueInstance.mixin({
