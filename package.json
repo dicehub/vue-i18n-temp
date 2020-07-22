@@ -1,13 +1,28 @@
 {
   "name": "@dicehub/vue-i18n",
   "version": "1.0.3",
-  "main": "index.js",
   "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
-    "fs-extra": "^8.1.0",
-    "glob": "^7.1.4",
-    "glob-watcher": "^5.0.3",
-    "vue": "^2.6.10"
+    "fs-extra": "8.1.0",
+    "glob": "7.1.4",
+    "glob-watcher": "5.0.3",
+    "vue": "2.6.10"
+  },
+  "devDependencies": {
+    "@vue/eslint-config-prettier": "6.0.0",
+    "babel-eslint": "10.1.0",
+    "eslint": "6.8.0",
+    "eslint-config-airbnb-base": "14.2.0",
+    "eslint-plugin-import": "2.22.0",
+    "eslint-plugin-json-format": "2.0.1",
+    "eslint-plugin-prettier": "3.1.4",
+    "eslint-plugin-vue": "6.2.2",
+    "jest": "26.1.0",
+    "prettier": "2.0.5"
   },
   "publishConfig": {
     "registry": "https://registry.dicehub.io"

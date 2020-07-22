@@ -1,0 +1,7 @@
+__tests__
+.eslint*
+.prettier*
+.editroconfig
+.npmrc
+.pre-commit-config.yaml
+Makefile
