@@ -1,5 +1,12 @@
 # vue-i18n
 
+## Usage
+
+```sh
+yarn add -S https://github.com/dicehub/vue-i18n-temp.git#1.0.3 #, or with npm
+npm install -S https://github.com/dicehub/vue-i18n-temp.git#1.0.3
+```
+
 ## Development
 
 ```sh

@@ -70,7 +70,7 @@ export default defineComponent({
 `);
   });
 
-  it('should modify Vue component wrapped to `defineComponent () (with spaces)`', () => {
+  it('should modify Vue component wrapped to `defineComponent ()` (with spaces)', () => {
     const source = `
 export default defineComponent  ({
   data() {
@@ -83,6 +83,29 @@ export default defineComponent  ({
 
     expect(loader(source)).toEqual(`
 export default defineComponent  ({
+  $componentModule: __dirname,
+  data() {
+    return {
+      foo: 'bar'
+    }
+  }
+});
+`);
+  });
+
+  it('should modify Vue component wrapped to `defineComponent()` and processed by Webpack', () => {
+    const source = `
+exports.default =  composition_api_1.defineComponent({
+  data() {
+    return {
+      foo: 'bar'
+    }
+  }
+});
+`;
+
+    expect(loader(source)).toEqual(`
+exports.default =  composition_api_1.defineComponent({
   $componentModule: __dirname,
   data() {
     return {

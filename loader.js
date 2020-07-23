@@ -1,10 +1,10 @@
-const loader = (source) => {
-  const newSource = source.replace(
-    /export default(\s*)(defineComponent\s*\()?{/,
-    'export default$1$2{\n  $componentModule: __dirname,'
-  );
+const componentModulePathInjectionLine = '\n  $componentModule: __dirname,';
 
-  return newSource;
-};
+/* eslint-disable-next-line no-unused-vars */
+const loader = (source, ..._args) =>
+  source.replace(
+    /export(s?\s*\.\s*|\s+)default(\s*(?:=\s*)?)((?:[A-z0-9_]+\s*\.\s*)?defineComponent\s*\(\s*)?{/,
+    `export$1default$2$3{${componentModulePathInjectionLine}`
+  );
 
 module.exports = loader;
