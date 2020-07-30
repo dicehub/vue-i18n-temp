@@ -115,4 +115,29 @@ exports.default =  composition_api_1.defineComponent({
 });
 `);
   });
+
+  it('should modify Vue component wrapped with Vue.extend util', () => {
+    const source = `
+import Vue from 'vue';
+import Socials from '@shared/components/Socials.vue';
+
+export default Vue.extend({
+  components: {
+    Socials,
+  },
+});
+`;
+
+    expect(loader(source)).toEqual(`
+import Vue from 'vue';
+import Socials from '@shared/components/Socials.vue';
+
+export default Vue.extend({
+  $componentModule: __dirname,
+  components: {
+    Socials,
+  },
+});
+`);
+  });
 });
