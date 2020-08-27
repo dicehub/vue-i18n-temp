@@ -16,9 +16,12 @@ module.exports = {
 
   overrides: [
     {
-      files: ['**/__tests__/*.{j,t}s?(x)', '**/tests/unit/**/*.spec.{j,t}s?(x)'],
+      files: ['__tests__/**/*.js', '**/tests/**/*.spec.js'],
       env: {
         jest: true,
+      },
+      globals: {
+        fetchMock: 'readonly',
       },
     },
   ],
@@ -70,5 +73,7 @@ module.exports = {
         exports: 'always-multiline',
       },
     ],
+    'class-methods-use-this': 'off',
+    'import/prefer-default-export': 'off',
   },
 };
