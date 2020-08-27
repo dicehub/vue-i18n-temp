@@ -5,7 +5,7 @@ export class I18n {
   static /* readonly */ DEFAULT_LOCALE = 'en';
   static /* private readonly */ interpolationRE = /{([^}]+)}/gm;
   static /* private readonly */ pluralSymbolRE = /%s/gm;
-  static /* private readonly */ pluralSplitRE = /\s+\|\s+/;
+  static /* private readonly */ pluralSplitRE = /\s*\|\s*/;
 
   /* private */ getFetchUrl = (locale) => locale;
 
@@ -13,7 +13,7 @@ export class I18n {
     /* private readonly */ this.fallbackLocale = I18n.DEFAULT_LOCALE;
     /* private readonly */ this.messages = {};
 
-    if (options.getFetchUrl) this.setFetchUrl(options.getFetchUrl);
+    if (options.getFetchUrl != null) this.setFetchUrl(options.getFetchUrl);
 
     this.setLocale(options.locale || this.fallbackLocale);
   }
@@ -39,7 +39,7 @@ export class I18n {
       return variants[1];
     }
 
-    return variants[2];
+    return variants[2] || '';
   }
 
   /* private */ setFetchUrl(fn) {
@@ -70,11 +70,15 @@ export class I18n {
   }
 
   /* private */ async loadLocale(locale) {
-    const url = this.getFetchUrl(locale);
-    const r = await fetch(url);
-    const data = await r.json();
+    try {
+      const url = this.getFetchUrl(locale);
+      const r = await fetch(url);
+      const data = await r.json();
 
-    this.saveLocale(locale, data);
+      this.saveLocale(locale, data);
+    } catch (err) {
+      console.error('Unable to load locale "%s" because of error:', locale, err);
+    }
   }
 
   /* private */ saveLocale(locale, data) {
