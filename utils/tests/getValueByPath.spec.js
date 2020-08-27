@@ -1,6 +1,6 @@
 import { getValueByPath } from '../getValueByPath';
 
-describe('utils/getValueByPath', () => {
+describe('@dicehub/vue-18n/utils/getValueByPath', () => {
   it('should find value in a flat map', () => {
     const map = { key: 'value' };
 

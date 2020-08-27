@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { getComponentPath } from '../getComponentPath';
 
-describe('utils/getComponentPath', () => {
+describe('@dicehub/vue-18n/utils/getComponentPath', () => {
   it('should return path of the component added by loader', () => {
     const vm = new Vue({
       $componentModule: 'components/MyComponent',
