@@ -17,6 +17,7 @@ const DHI18nPlugin = {
 
     VueInstance.prototype.$i18n = new Vue({
       data: () => ({
+        setLocale: i18nGlobalInstance.setLocale.bind(i18nGlobalInstance),
         instance: i18nGlobalInstance,
       }),
     });
