@@ -5,3 +5,6 @@ __tests__
 .npmrc
 .pre-commit-config.yaml
 Makefile
+*.config.js
+*.spec.js
+*.lock
