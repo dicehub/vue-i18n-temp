@@ -8,36 +8,37 @@ describe('services/I18n', () => {
     fetchMock.dontMock();
   });
 
-  describe('With mocked window.fetch()', () => {
-    const locales = {
-      en: 'en',
-      klingon: 'tlh',
-    };
+  const locales = {
+    en: 'en',
+    klingon: 'tlh',
+  };
 
-    const getFetchUrlMock = () => jest.fn((ll) => `http://dicehub.io/lang/${ll}.json`);
+  const getFetchUrlMock = () => jest.fn((ll) => `http://dicehub.io/lang/${ll}.json`);
 
-    const getDefaultTranslations = () => ({
-      key: 'value',
-      you: 'You',
-      so: {
-        deep: {
-          key: 'so deep value',
-        },
-      },
-      interpolated: '{value1} {value2}',
-      interpolatedWithSpaces: '{ key1 }{key2   }    {    key3} {  key4}. {key5}',
+  const getDefaultTranslations = () => ({
+    key: 'value',
+    you: 'You',
+    so: {
       deep: {
-        interpolated: 'result: {deep.interpolated.key}',
+        key: 'so deep value',
       },
-      plural: 'Zero|First |    Other',
-      pluralWithArgs: '{prefix0}: Zero | {prefix1}: First | {prefixDefault}: Other',
-    });
+    },
+    interpolated: '{value1} {value2}',
+    interpolatedWithSpaces: '{ key1 }{key2   }    {    key3} {  key4}. {key5}',
+    deep: {
+      interpolated: 'result: {deep.interpolated.key}',
+    },
+    plural: 'Zero|First |    Other',
+    nonFullPlural: 'Zero|First',
+    pluralWithArgs: '{prefix0}: Zero | {prefix1}: First | {prefixDefault}: Other',
+  });
 
-    const getKlingonTranslations = () => ({
-      you: 'SoH',
-      pluralKeyKlingon: "pagh | wa’  | 'uy'",
-    });
+  const getKlingonTranslations = () => ({
+    you: 'SoH',
+    pluralKeyKlingon: "pagh | wa’  | 'uy'",
+  });
 
+  describe('With mocked window.fetch()', () => {
     beforeEach(() => {
       fetchMock.doMock();
       fetch.mockResponse(async (req) =>
@@ -59,10 +60,8 @@ describe('services/I18n', () => {
 
       await nextTick();
 
-      expect(fetch).toBeCalledTimes(1);
-      expect(fetch.mock.calls[0]).toContain('en');
-      expect(i18n.locale).toBe('en');
-      expect(document.querySelector('html').getAttribute('lang')).toBe('en');
+      expect(fetch).toBeCalledTimes(0);
+      expect(i18n.locale).toBeUndefined();
     });
 
     it('should use option in the constructor', async () => {
@@ -95,7 +94,10 @@ describe('services/I18n', () => {
     });
 
     it('should return translation from t() function', async () => {
-      const i18n = new I18n();
+      const i18n = new I18n({
+        locale: locales.en,
+        getFetchUrl: getFetchUrlMock(),
+      });
 
       await nextTick();
 
@@ -104,12 +106,9 @@ describe('services/I18n', () => {
     });
 
     it('should return translation from t() function and fallbackLocale', async () => {
-      const locale = locales.klingon;
-      const getFetchUrl = getFetchUrlMock();
-
       const i18n = new I18n({
-        locale,
-        getFetchUrl,
+        locale: locales.klingon,
+        getFetchUrl: getFetchUrlMock(),
       });
 
       await nextTick();
@@ -122,7 +121,10 @@ describe('services/I18n', () => {
     });
 
     it("should interpolate values correctly whenever it's possible", async () => {
-      const i18n = new I18n();
+      const i18n = new I18n({
+        locale: locales.en,
+        getFetchUrl: getFetchUrlMock(),
+      });
 
       await nextTick();
 
@@ -158,7 +160,10 @@ describe('services/I18n', () => {
     });
 
     it('should return translation from ti() function', async () => {
-      const i18n = new I18n();
+      const i18n = new I18n({
+        locale: locales.en,
+        getFetchUrl: getFetchUrlMock(),
+      });
 
       await nextTick();
 
@@ -170,8 +175,24 @@ describe('services/I18n', () => {
       expect(i18n.ti('plural')).toBe('Other');
     });
 
+    it('should return empty string for non-full plural value', async () => {
+      const i18n = new I18n({
+        locale: locales.en,
+        getFetchUrl: getFetchUrlMock(),
+      });
+
+      await nextTick();
+
+      expect(i18n.ti('nonFullPlural', 0)).toBe('Zero');
+      expect(i18n.ti('nonFullPlural', 1)).toBe('First');
+      expect(i18n.ti('nonFullPlural', 2)).toBe('');
+    });
+
     it('should support interpolation in ti()', async () => {
-      const i18n = new I18n();
+      const i18n = new I18n({
+        locale: locales.en,
+        getFetchUrl: getFetchUrlMock(),
+      });
 
       await nextTick();
 
@@ -208,6 +229,7 @@ describe('services/I18n', () => {
 
     it('shold allow to set locale on the fly', async () => {
       const i18n = new I18n({
+        locale: locales.en,
         getFetchUrl: getFetchUrlMock(),
       });
 
@@ -224,6 +246,8 @@ describe('services/I18n', () => {
   });
 
   describe('With fetching problems', () => {
+    const LOCALE_LOADING_ERROR = 'Unable to load locale "%s" from url="%s" because of error:';
+
     let restoreConsole;
 
     beforeEach(() => {
@@ -239,42 +263,56 @@ describe('services/I18n', () => {
     it('should notify about unability to fetch translations on network abort', async () => {
       fetch.mockAbort();
 
-      expect(() => new I18n()).not.toThrowError();
+      expect(
+        () =>
+          new I18n({
+            locale: locales.en,
+            getFetchUrl: getFetchUrlMock(),
+          })
+      ).not.toThrowError();
 
       await nextTick();
 
       expect(console.error).toBeCalledTimes(1);
-      expect(console.error.mock.calls[0]).toContain(
-        'Unable to load locale "%s" because of error:',
-        'en'
-      );
+      expect(console.error.mock.calls[0]).toContain(LOCALE_LOADING_ERROR, 'en');
     });
 
     it('should notify about unability to fetch translations on the failed response', async () => {
       fetch.mockReject();
-      expect(() => new I18n()).not.toThrowError();
+      expect(
+        () =>
+          new I18n({
+            locale: locales.en,
+            getFetchUrl: getFetchUrlMock(),
+          })
+      ).not.toThrowError();
 
       await nextTick();
 
       expect(console.error).toBeCalledTimes(1);
-      expect(console.error.mock.calls[0]).toContain(
-        'Unable to load locale "%s" because of error:',
-        'en'
-      );
+      expect(console.error.mock.calls[0]).toContain(LOCALE_LOADING_ERROR, 'en');
     });
 
     it('should notify if cannot parse response as JSON', async () => {
       fetch.mockResponse('non-json object');
 
-      expect(() => new I18n()).not.toThrowError();
+      expect(
+        () =>
+          new I18n({
+            locale: locales.en,
+            getFetchUrl: getFetchUrlMock(),
+          })
+      ).not.toThrowError();
+
       await nextTick();
 
       expect(console.error).toBeCalledTimes(1);
       expect(console.error.mock.calls[0]).toContain(
-        'Unable to load locale "%s" because of error:',
-        'en'
+        LOCALE_LOADING_ERROR,
+        'en',
+        'http://dicehub.io/lang/en.json'
       );
-      expect(console.error.mock.calls[0][2].message).toContain('Unexpected token o in JSON');
+      expect(console.error.mock.calls[0][3].message).toContain('Unexpected token o in JSON');
     });
   });
 });
