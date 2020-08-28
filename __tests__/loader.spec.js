@@ -1,7 +1,7 @@
 const loader = require('../loader');
 
 describe('@dicehub/vue-18n/loader', () => {
-  it('should modinfy simple Vue component', () => {
+  it('should modify simple Vue component code', () => {
     const source = `
 export default {
   data() {
